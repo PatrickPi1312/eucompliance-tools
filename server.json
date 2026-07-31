@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.patrickpi1312/eu-compliance",
+  "title": "EU Compliance Tools (pay-per-call, x402)",
+  "description": "EU compliance tools for agents, pay per call in USDC on Base via x402 - no account, no API key: EU sanctions screening (AML/KYC) against the official EU consolidated list, counterparty due diligence (KYB), EU VAT rules engine with EN 16931 codes for e-invoicing, e-invoice validation (XRechnung/ZUGFeRD/Peppol), VIES VAT ID and IBAN validation. Every result carries a signed, independently verifiable compliance receipt; verifying a receipt is free.",
+  "version": "1.0.0",
+  "websiteUrl": "https://eucompliance.tools",
+  "repository": {
+    "url": "https://github.com/PatrickPi1312/eucompliance-tools",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.eucompliance.tools/mcp"
+    }
+  ]
+}
