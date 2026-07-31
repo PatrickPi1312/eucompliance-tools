@@ -9,12 +9,12 @@ Catalog: **https://eucompliance.tools** · Machine-readable: [`/llms.txt`](https
 
 | Tool | What it answers | Price |
 |---|---|---|
-| **Counterparty check (KYB)** | VAT ID + sanctions + IBAN in one call → traffic light `clear / review / blocked` with reasons | $0.02 |
-| **EU sanctions screening** | Is this person or company on the official EU consolidated sanctions list? (AML/KYC) | $0.01 |
-| **EU VAT rules engine** | Place of supply, reverse charge, EN 16931 category + exemption codes for e-invoicing | $0.003 |
+| **Agent spend bookkeeping** | What did my agent spend, in EUR, with which VAT treatment? Chain → EUR (ECB rate) → CSV for accounting | $0.50 || **Counterparty check (KYB)** | VAT ID + sanctions + IBAN in one call → traffic light `clear / review / blocked` with reasons | $0.10 |
+| **EU sanctions screening** | Is this person or company on the official EU consolidated sanctions list? (AML/KYC) | $0.05 |
+| **EU VAT rules engine** | Place of supply, reverse charge, EN 16931 category + exemption codes for e-invoicing | $0.02 |
 | **EU VAT ID validation** | Live VIES register check, returns registered name and address | $0.002 |
 | **IBAN validation** | Checksum and country structure | $0.002 |
-| **Receipt / invoice extraction** | Photo or PDF → structured JSON (vendor, date, total, VAT, line items), DACH-optimised | $0.02 |
+| **Receipt / invoice extraction** | Photo or PDF → structured JSON (vendor, date, total, VAT, line items), DACH-optimised | $0.10 |
 
 Every answer carries its **official source and data date**, so results are auditable.
 Sanctions data comes from the European Commission's Financial Sanctions Files and is re-indexed daily.
