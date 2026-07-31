@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.patrickpi1312/eu-compliance",
+  "name": "io.github.PatrickPi1312/eu-compliance",
   "title": "EU Compliance Tools (pay-per-call, x402)",
   "description": "EU sanctions, KYB, VAT rules and e-invoice checks - pay per call in USDC, no account",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "websiteUrl": "https://eucompliance.tools",
   "repository": {
     "url": "https://github.com/PatrickPi1312/eucompliance-tools",
