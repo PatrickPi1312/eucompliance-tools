@@ -123,13 +123,23 @@ normally — see the signup page.
 
 ## Who runs this
 
-[Kaufmann Installationen](https://installateur1210.at), a plumbing and heating
-company in Vienna. We issue reverse-charge invoices ourselves every week and built
-the VAT engine because nothing off the shelf produced the codes our accountant — and,
-from 2026, the EU e-invoicing mandates — require. The on-chain tooling came out of
-running our own agent wallet and getting tired of transactions that failed for
-reasons the receipt did not explain.
+**eucompliance.tools**, operated from Vienna, Austria.
 
+Two things about the origin, because they explain why the tools are shaped the way
+they are:
+
+The VAT engine was not built for a market — it was built because we issue
+reverse-charge invoices ourselves every week and nothing off the shelf produced the
+codes our accountant, and from 2026 the EU e-invoicing mandates, require. Every rule
+in it is one we file under. The conformance fixtures are public so you can check that
+claim rather than believe it.
+
+The on-chain tooling came out of running an agent wallet and getting tired of
+transactions that failed for reasons the receipt did not explain. The pre-flight
+check is the thing we wanted to exist.
+
+Legal operator: Kaufmann Installationen, a registered Austrian business — which is
+why an ordinary invoice with a VAT ID is an option alongside per-call USDC.
 On-chain identity: ERC-8004 agent **#60255** on Base.
 
 MIT licensed. No telemetry, no tracking, no key required to look.
