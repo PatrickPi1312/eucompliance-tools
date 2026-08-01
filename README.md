@@ -116,8 +116,8 @@ The payer needs no ETH — gas is sponsored via EIP-3009, with Coinbase CDP as
 facilitator. Call any endpoint without payment to receive the challenge containing
 the exact price and payment address.
 
-Prefer an invoice? The operator is an Austrian trade business with a VAT ID and can
-bill normally — see the signup page.
+Prefer an invoice? The operator holds an Austrian trade licence and a VAT ID and
+can bill normally — see the signup page.
 
 ---
 
@@ -138,8 +138,9 @@ The on-chain tooling came out of running an agent wallet and getting tired of
 transactions that failed for reasons the receipt did not explain. The pre-flight
 check is the thing we wanted to exist.
 
-Operator: Kaufmann Installationen, an Austrian sole proprietorship with a VAT ID —
-which is why an ordinary invoice is an option alongside per-call USDC.
+Operator: Patrick Kaufmann, sole proprietor in Vienna, Austria (trade licence,
+Austrian VAT ID) — which is why an ordinary invoice is an option alongside
+per-call USDC.
 On-chain identity: ERC-8004 agent **#60255** on Base.
 
 MIT licensed. No telemetry, no tracking, no key required to look.
