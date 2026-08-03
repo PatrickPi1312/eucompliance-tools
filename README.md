@@ -55,7 +55,7 @@ A failed transaction costs the full gas of the attempt. These calls cost a fract
 | Tool | What it answers | Price |
 |---|---|---|
 | **Counterparty check (KYB)** | VAT ID + sanctions + IBAN + GLEIF LEI in one call → traffic light `clear / review / blocked` with reasons | $0.02 |
-| **E-invoice validation** | EN 16931 / XRechnung / ZUGFeRD / Factur-X / Peppol BIS: mandatory fields, totals arithmetic, VAT category rules — each finding with its official `BR-` code | $0.02 |
+| **E-invoice validation** | EN 16931 / XRechnung / ZUGFeRD / Factur-X / Peppol BIS: the **complete official EN 16931 Schematron rule set** (CEN validation artefacts, used unmodified) plus totals arithmetic and VAT category rules — every finding with its official `BR-` code and severity, result signed and independently verifiable. [Runnable example ↓](#validate-an-e-invoice-in-one-call) | $0.10 |
 | **EU VAT rules engine** | Place of supply, reverse charge, intra-Community supply, OSS threshold, with EN 16931 codes (`BT-151` category, `BT-121` exemption reason) | $0.005 |
 | **Sanctions screening** | EU (Commission FSF) + UN Security Council + UK (HM Treasury OFSI) in one call, re-indexed daily, every hit auditable with list, reference and generation date | $0.01 |
 | **Company register lookup** | Official national registers: FR, NO, CZ, FI, SK, PL — normalised | $0.01 |
@@ -69,6 +69,29 @@ A failed transaction costs the full gas of the attempt. These calls cost a fract
 | **Chat completion** | A model answer per call, no account and no API key. 8k chars in, 1k tokens out | $0.005 |
 | **Chat completion (plus)** | Stronger model, 16k chars in, 2k tokens out | $0.02 |
 | **Web page reader** | URL in, readable content out as clean markdown or text — direct fetch of the page, no third-party index in between | $0.005 |
+
+---
+
+## Validate an e-invoice in one call
+
+Check a UBL or CII invoice (XRechnung, ZUGFeRD / Factur-X, Peppol BIS) against the
+**complete official EN 16931 Schematron** — the same rule set the official validators
+use, run unmodified — plus totals arithmetic and VAT category rules. Every finding
+comes back with its official `BR-` code and severity, and the result is signed so it
+can be attached to the document as validation evidence.
+
+No wallet needed to try it — [`examples/validate_einvoice.py`](examples/validate_einvoice.py)
+runs against the free tier and catches a deliberately broken sample out of the box:
+
+```bash
+pip install requests
+python examples/validate_einvoice.py                 # broken sample → BR-02, BR-06, BR-CO-26 …
+python examples/validate_einvoice.py my-invoice.xml  # your UBL/CII XML
+python examples/validate_einvoice.py zugferd.pdf     # or a ZUGFeRD / Factur-X PDF
+```
+
+For volume it is one x402 call at `/x402/einvoice` ($0.10) — see
+[`examples/pay_and_call.py`](examples/pay_and_call.py).
 
 ---
 
