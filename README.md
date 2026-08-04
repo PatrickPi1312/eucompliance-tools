@@ -68,7 +68,16 @@ A failed transaction costs the full gas of the attempt. These calls cost a fract
 |---|---|---|
 | **Chat completion** | A model answer per call, no account and no API key. 8k chars in, 1k tokens out | $0.005 |
 | **Chat completion (plus)** | Stronger model, 16k chars in, 2k tokens out | $0.02 |
-| **Web page reader** | URL in, readable content out as clean markdown or text — direct fetch of the page, no third-party index in between | $0.005 |
+| **Web content extraction** | URL in, readable content out as clean markdown or text — title, author, date, main text, tables, links. Direct fetch of the page, no third-party search index resold | $0.003 |
+
+### Market & social data — for agents that trade or monitor
+
+| Tool | What it answers | Price |
+|---|---|---|
+| **Crypto spot price** | Median of Binance, Coinbase and Kraken public tickers — every single quote, the spread and the timestamp disclosed, so the median is verifiable. Refuses to answer from a single source | $0.001 |
+| **Open social search** | Recent public posts from **Bluesky, Hacker News and Mastodon** in one call: author, text, time, engagement, link. Failing sources are named. Twitter/X and TikTok are deliberately out of scope — their terms forbid scraping | $0.002 |
+| **Perp market data** | Mark and oracle price, hourly and annualised funding rate, open interest, 24h volume and max leverage per market, from the Hyperliquid public API, sorted by volume | $0.005 |
+| **Market brief / yield / gas** | Aggregated crypto-market indicators computed from several upstream x402 feeds, scoring rule disclosed; archived time series at `/x402/history` | $0.005 |
 
 ---
 
