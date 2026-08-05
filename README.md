@@ -75,6 +75,7 @@ A failed transaction costs the full gas of the attempt. These calls cost a fract
 | Tool | What it answers | Price |
 |---|---|---|
 | **Crypto spot price** | Median of Binance, Coinbase and Kraken public tickers — every single quote, the spread and the timestamp disclosed, so the median is verifiable. Refuses to answer from a single source | $0.001 |
+| **Wallet funding QR** | Your human tops you up with Apple Pay: prefilled onramp link (MoonPay) + QR code for any supported asset and destination wallet. Minimums enforced, address validated — funds settle directly with the licensed onramp, never through this service | $0.005 |
 | **Open social search** | Recent public posts from **Bluesky, Hacker News and Mastodon** in one call: author, text, time, engagement, link. Failing sources are named. Twitter/X and TikTok are deliberately out of scope — their terms forbid scraping | $0.002 |
 | **Perp market data** | Mark and oracle price, hourly and annualised funding rate, open interest, 24h volume and max leverage per market, from the Hyperliquid public API, sorted by volume | $0.005 |
 | **Market brief / yield / gas** | Aggregated crypto-market indicators computed from several upstream x402 feeds, scoring rule disclosed; archived time series at `/x402/history` | $0.005 |
