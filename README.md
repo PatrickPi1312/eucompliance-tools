@@ -78,7 +78,9 @@ A failed transaction costs the full gas of the attempt. These calls cost a fract
 | **Wallet funding QR** | Your human tops you up with Apple Pay: prefilled onramp link (MoonPay) + QR code for any supported asset and destination wallet. Minimums enforced, address validated — funds settle directly with the licensed onramp, never through this service | $0.005 |
 | **Open social search** | Recent public posts from **Bluesky, Hacker News and Mastodon** in one call: author, text, time, engagement, link. Failing sources are named. Twitter/X and TikTok are deliberately out of scope — their terms forbid scraping | $0.002 |
 | **Perp market data** | Mark and oracle price, hourly and annualised funding rate, open interest, 24h volume and max leverage per market, from the Hyperliquid public API, sorted by volume | $0.005 |
-| **Market brief / yield / gas** | Aggregated crypto-market indicators computed from several upstream x402 feeds, scoring rule disclosed; archived time series at `/x402/history` | $0.005 |
+| **Market brief / yield / gas** | Aggregated crypto-market indicators computed from several upstream x402 feeds, scoring rule disclosed; archived time series at `/x402/history` | $0.01 |
+| **Per-coin positioning brief** | One coin, one call: exchange-median spot with disclosed spread, Hyperliquid funding / open interest / premium / volume, and a disclosed positioning score (crowded long / short) with our own 6-hourly archive trend | $0.01 |
+| **Daily market bundle** | Everything above in one scheduled call: market-regime score, Base gas, best observed APY, BTC/ETH/SOL spot, top-5 perp markets — plus the 7-day history of every component from our own purchase archive, a series no upstream provider sells | $0.05 |
 
 ---
 
