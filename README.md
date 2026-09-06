@@ -1,26 +1,29 @@
-# EU compliance & on-chain pre-flight tools for AI agents
+# Agent Decision & Evidence Tools over MCP and x402
 
-**Pay per call in USDC. No account, no API key, no subscription, no minimum.**
-Also an **MCP server**, so an agent can simply use the tools.
+**40 machine-callable tools, including 10 free preparation, routing and verification tools.**
+Pay only for a successfully delivered result in USDC through x402. No account, API key,
+subscription or minimum purchase is required.
 
-An agent calls an endpoint, gets `HTTP 402 Payment Required` with the exact price,
-pays a fraction of a cent in USDC on Base, repeats the call and gets the answer.
-Every answer carries a signed receipt that verifies offline.
+- Live catalog: [eucompliance.tools](https://eucompliance.tools/)
+- MCP endpoint: `https://mcp.eucompliance.tools/mcp`
+- Exact machine-readable catalog: [agents.json](https://api.eucompliance.tools/agents.json)
+- Agent guide: [llms.txt](https://api.eucompliance.tools/llms.txt)
+- x402 discovery: [.well-known/x402](https://api.eucompliance.tools/.well-known/x402)
 
-Catalog: **https://eucompliance.tools** ·
-[`/.well-known/x402`](https://api.eucompliance.tools/.well-known/x402) ·
-[`/llms.txt`](https://api.eucompliance.tools/llms.txt)
+The service is built for agents that need a bounded decision or a cited piece of evidence,
+not an unstructured report. Paid successes return machine-readable structured content and a
+signed receipt. Invalid input, unavailable required evidence and tool errors are not settled.
 
----
+## Add the MCP server
 
-## Add it to your agent (30 seconds)
+Claude Code:
 
-**Claude Code**
 ```bash
 claude mcp add --transport http eucompliance https://mcp.eucompliance.tools/mcp
 ```
 
-**Claude Desktop / Cursor / any MCP client** — add to the config:
+Claude Desktop, Cursor or another streamable-HTTP MCP client:
+
 ```json
 {
   "mcpServers": {
@@ -32,150 +35,102 @@ claude mcp add --transport http eucompliance https://mcp.eucompliance.tools/mcp
 }
 ```
 
-Nothing to sign up for. Two tools are free (VAT ID and IBAN validation, 5000/day);
-the rest are paid per call and an agent with a wallet settles them over x402 by
-itself. Ask it *"validate VAT ID ATU16170006"* and it works immediately.
+If the right product is unclear, call the free `recommend_agent_tool` tool with the job,
+available inputs and optional price cap. It returns one to three exact catalog matches and a
+safe workflow without calling a model, making a payment or executing the selected tool.
 
----
+## Start from the job, not the catalog
 
-## What the tools answer
+| Agent job | Tool | Result | Price |
+|---|---|---|---:|
+| Read live state on one or many EVM chains | `rpc_read_batch` | 1–20 allowlisted read-only JSON-RPC calls across 28 mainnets | $0.01 |
+| Decide whether an on-chain transaction is safe to submit | `tx_preflight` | `proceed`, `review` or `block`, with five core checks and optional token evidence | $0.02 |
+| Turn live market evidence into a time-bounded action | `market_decision_pack` | `ENTER_RISK`, `WAIT` or `REDUCE_RISK`, reasons, risks and 15-minute expiry | $0.05 |
+| Check an EU counterparty before onboarding or payment | `check_counterparty_eu` | VAT, EU/UN/UK sanctions and IBAN consistency → `clear`, `review` or `blocked` | $0.02 |
+| Decide whether an EU supplier invoice is ready for approval | `invoice_to_pay_dossier_eu` | EN 16931, VIES, sanctions, VAT and trusted-payee evidence → READY, HOLD or DO NOT PAY | $1.00 |
+| Check ordinary DE/AT goods before requesting a US carrier quote | `us_import_readiness_guard` | USITC/CPSC-backed readiness decision, unknowns and safe next actions | $0.25 |
+| Validate an EU e-invoice | `validate_einvoice_eu` | Official EN 16931 findings with rule codes and severity | $0.10 |
+| Run fixed-price short inference | `agentllm_micro`, `agentllm_basic`, `agentllm_plus` | OpenAI-compatible completion plus disclosed upstream usage and signed delivery receipt | $0.003 / $0.005 / $0.02 |
 
-### On-chain pre-flight — for agents that transact
+The complete 40-tool list, exact input and output schemas, current prices and transport-specific
+HTTP offers are always published in [agents.json](https://api.eucompliance.tools/agents.json).
 
-| Tool | What it answers | Price |
-|---|---|---|
-| **Transaction pre-flight** | Will this transaction go through? Gas vs. balance, full simulation with the **revert reason decoded into plain text**, stuck pending nonces, contract-or-wallet recipient, ERC-20 allowance, and a sanctions screen of the counterparty. One call, `send` / `do not send` with every blocking reason | $0.005 |
-| **Token allowance & balance** | Enough allowance and balance for this amount? Live from the chain on Base, Ethereum, Arbitrum, Optimism and Polygon | $0.002 |
-| **Transaction status** | What happened to my transaction — and if it failed, **why**, recovered by replaying the call against its block. The receipt alone does not carry that reason | $0.002 |
+## Read-only chain evidence
 
-A failed transaction costs the full gas of the attempt. These calls cost a fraction of it.
+`rpc_read_batch` is the broad entry point: one default chain plus optional per-request chain
+overrides, up to 20 allowlisted read calls, and 28 named EVM mainnets. Focused tools are also
+available for wallet balance, gas estimate, contract information, transaction status and ERC-20
+balance/allowance. None of them signs, approves, transfers or broadcasts a transaction.
 
-### EU compliance — for agents that onboard, invoice or pay
+For a decision rather than raw evidence, use `tx_preflight`. Missing evidence is never treated
+as approval. Wallet-address sanctions screening is not claimed because name lists cannot clear an
+address.
 
-| Tool | What it answers | Price |
-|---|---|---|
-| **Counterparty check (KYB)** | VAT ID + sanctions + IBAN + GLEIF LEI in one call → traffic light `clear / review / blocked` with reasons | $0.02 |
-| **E-invoice validation** | EN 16931 / XRechnung / ZUGFeRD / Factur-X / Peppol BIS: the **complete official EN 16931 Schematron rule set** (CEN validation artefacts, used unmodified) plus totals arithmetic and VAT category rules — every finding with its official `BR-` code and severity, result signed and independently verifiable. [Runnable example ↓](#validate-an-e-invoice-in-one-call) | $0.10 |
-| **EU VAT rules engine** | Place of supply, reverse charge, intra-Community supply, OSS threshold, with EN 16931 codes (`BT-151` category, `BT-121` exemption reason) | $0.005 |
-| **Sanctions screening** | EU (Commission FSF) + UN Security Council + UK (HM Treasury OFSI) in one call, re-indexed daily, every hit auditable with list, reference and generation date | $0.01 |
-| **Company register lookup** | Official national registers: FR, NO, CZ, FI, SK, PL — normalised | $0.01 |
-| **Agent spend bookkeeping** | What did my agent spend, in EUR at the ECB rate of the payment date, with VAT treatment and CSV export | $0.10 |
-| **VAT ID / IBAN validation** | Format plus live VIES registration check; IBAN mod-97 with bank identification | **free** via MCP |
+## Market evidence and decisions
 
-### General purpose
+Agents can buy the smallest useful observation or a complete decision:
 
-| Tool | What it answers | Price |
-|---|---|---|
-| **Chat completion** | A model answer per call, no account and no API key. 8k chars in, 1k tokens out | $0.005 |
-| **Chat completion (plus)** | Stronger model, 16k chars in, 2k tokens out | $0.02 |
-| **Web content extraction** | URL in, readable content out as clean markdown or text — title, author, date, main text, tables, links. Direct fetch of the page, no third-party search index resold | $0.003 |
+- `spot_price` — multi-exchange median and spread: $0.001
+- `open_social_search` — bounded Bluesky and Hacker News evidence: $0.002
+- `perp_market_data` — Hyperliquid funding, open interest, premium and volume: $0.005
+- `market_history` — archived raw or daily series: $0.008
+- `market_data` or `coin_positioning_brief` — computed context with disclosed rules: $0.01
+- `market_decision_pack` — action, confidence, reasons, risk flags and invalidation: $0.05
 
-### Market & social data — for agents that trade or monitor
+Every paid market result identifies its sources and freshness. The decision pack expires after
+15 minutes instead of encouraging an agent to reuse stale market advice.
 
-| Tool | What it answers | Price |
-|---|---|---|
-| **Crypto spot price** | Median of Binance, Coinbase and Kraken public tickers — every single quote, the spread and the timestamp disclosed, so the median is verifiable. Refuses to answer from a single source | $0.001 |
-| **Wallet funding QR** | Your human tops you up with Apple Pay: prefilled onramp link (MoonPay) + QR code for any supported asset and destination wallet. Minimums enforced, address validated — funds settle directly with the licensed onramp, never through this service | $0.005 |
-| **Open social search** | Recent public posts from **Bluesky, Hacker News and Mastodon** in one call: author, text, time, engagement, link. Failing sources are named. Twitter/X and TikTok are deliberately out of scope — their terms forbid scraping | $0.002 |
-| **Perp market data** | Mark and oracle price, hourly and annualised funding rate, open interest, 24h volume and max leverage per market, from the Hyperliquid public API, sorted by volume | $0.005 |
-| **Market brief / yield / gas** | Aggregated crypto-market indicators computed from several upstream x402 feeds, scoring rule disclosed; archived time series at `/x402/history` | $0.01 |
-| **Per-coin positioning brief** | One coin, one call: exchange-median spot with disclosed spread, Hyperliquid funding / open interest / premium / volume, and a disclosed positioning score (crowded long / short) with our own 6-hourly archive trend | $0.01 |
-| **Daily market bundle** | Everything above in one scheduled call: market-regime score, Base gas, best observed APY, BTC/ETH/SOL spot, top-5 perp markets — plus the 7-day history of every component from our own purchase archive, a series no upstream provider sells | $0.05 |
+## High-value guarded workflows
 
----
+The invoice and US-import products have free preparation tools. Run them first; they validate
+shape and required context and return the exact paid next step. The paid tools never release a
+payment, place an order, create a forwarding address, book a carrier, sign a wallet transaction
+or broadcast anything.
 
-## Validate an e-invoice in one call
+`invoice_to_pay_dossier_eu` accepts UBL/CII XML or ZUGFeRD/Factur-X PDFs with one embedded invoice
+XML. An ordinary or scanned PDF is intentionally unsupported. `READY_FOR_BUYER_APPROVAL` is an
+evidence decision, not proof of delivery, internal approval, duplicate-ledger status or bank-account
+ownership.
 
-Check a UBL or CII invoice (XRechnung, ZUGFeRD / Factur-X, Peppol BIS) against the
-**complete official EN 16931 Schematron** — the same rule set the official validators
-use, run unmodified — plus totals arithmetic and VAT category rules. Every finding
-comes back with its official `BR-` code and severity, and the result is signed so it
-can be attached to the document as validation evidence.
+`us_import_readiness_guard` is limited to declared ordinary goods from Germany or Austria to the
+United States. It supplies non-binding HTS evidence and readiness guidance; it is not customs
+clearance, a binding classification or a shipping service.
 
-No wallet needed to try it — [`examples/validate_einvoice.py`](examples/validate_einvoice.py)
-runs against the free tier and catches a deliberately broken sample out of the box:
+## x402 payment behavior
 
-```bash
-pip install requests
-python examples/validate_einvoice.py                 # broken sample → BR-02, BR-06, BR-CO-26 …
-python examples/validate_einvoice.py my-invoice.xml  # your UBL/CII XML
-python examples/validate_einvoice.py zugferd.pdf     # or a ZUGFeRD / Factur-X PDF
-```
+HTTP products return an x402 v2 payment requirement with the exact amount. Payment options are
+published for Base, Arbitrum, Polygon and Solana. The caller signs the selected option and retries
+the identical request. The server never receives a wallet private key and does not perform a
+buyer-side transfer.
 
-For volume it is one x402 call at `/x402/einvoice` ($0.10) — see
-[`examples/pay_and_call.py`](examples/pay_and_call.py).
+Use a payment policy that pins the exact HTTPS resource, method, network, recipient and maximum
+amount. The free `prepare_x402_purchase_guard` plus paid `x402_purchase_guard` workflow can check
+an already received x402 challenge before a buyer confirms it; it never pays the target.
 
----
+## Verify a delivered result
 
-## Try it without paying anything
-
-Free, 5 calls a day per address, no signup:
-
-```bash
-curl "https://api.eucompliance.tools/free/vat-rules?supplier=AT&customer=DE&b2b=true&type=service"
-curl "https://api.eucompliance.tools/free/sanctions?name=Some%20Company%20Ltd"
-```
-
-Or get a key with 100 free calls covering every tool at
-**https://api.eucompliance.tools/kaufen** — email in, key out, no card.
-
----
-
-## Verify any answer without trusting us
-
-Every response carries a receipt: the result hash, the issue time and an EIP-191
-signature. Checking it needs no network and no trust in the issuer:
+Signed receipts can be checked independently:
 
 ```bash
 pip install eucompliance-verify
 ```
+
 ```python
 from eucompliance_verify import verify_receipt, PaymentPolicy
 
-result = verify_receipt(response_json)          # recomputes the hash, recovers the signer
-policy = PaymentPolicy(max_age_hours=24)
-if not policy.check(response_json).allowed:
-    raise RuntimeError("do not release this payment")
+verified = verify_receipt(response_json)
+decision = PaymentPolicy(max_age_hours=24).check(response_json)
+if not decision.allowed:
+    raise RuntimeError("receipt outside policy")
 ```
 
-Source: [eucompliance-verify](https://github.com/PatrickPi1312/eucompliance-verify) (MIT).
-Conformance fixtures for the VAT engine, public domain:
-[eu-vat-conformance](https://github.com/PatrickPi1312/eu-vat-conformance).
+Verifier source: [eucompliance-verify](https://github.com/PatrickPi1312/eucompliance-verify).
+VAT conformance fixtures: [eu-vat-conformance](https://github.com/PatrickPi1312/eu-vat-conformance).
 
----
+## Operator
 
-## Paying
+eucompliance.tools is operated by Patrick Kaufmann, sole proprietor in Vienna, Austria. The
+service exposes evidence and decision APIs; it does not act as a bank, wallet signer, customs
+broker, freight forwarder or legal adviser.
 
-x402 v2, scheme `exact`, network `eip155:8453` (Base mainnet), asset USDC.
-The payer needs no ETH — gas is sponsored via EIP-3009, with Coinbase CDP as
-facilitator. Call any endpoint without payment to receive the challenge containing
-the exact price and payment address.
-
-Prefer an invoice? The operator holds an Austrian trade licence and a VAT ID and
-can bill normally — see the signup page.
-
----
-
-## Who runs this
-
-**eucompliance.tools**, operated from Vienna, Austria.
-
-Two things about the origin, because they explain why the tools are shaped the way
-they are:
-
-The VAT engine was not built for a market — it was built because we issue
-reverse-charge invoices ourselves every week and nothing off the shelf produced the
-codes our accountant, and from 2026 the EU e-invoicing mandates, require. Every rule
-in it is one we file under. The conformance fixtures are public so you can check that
-claim rather than believe it.
-
-The on-chain tooling came out of running an agent wallet and getting tired of
-transactions that failed for reasons the receipt did not explain. The pre-flight
-check is the thing we wanted to exist.
-
-Operator: Patrick Kaufmann, sole proprietor in Vienna, Austria (trade licence,
-Austrian VAT ID) — which is why an ordinary invoice is an option alongside
-per-call USDC.
 On-chain identity: ERC-8004 agent **#60255** on Base.
-
-MIT licensed. No telemetry, no tracking, no key required to look.
