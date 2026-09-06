@@ -92,6 +92,22 @@ XML. An ordinary or scanned PDF is intentionally unsupported. `READY_FOR_BUYER_A
 evidence decision, not proof of delivery, internal approval, duplicate-ledger status or bank-account
 ownership.
 
+### Add invoice evidence to your existing approval workflow
+
+The [invoice-guard integration](integrations/invoice_guard/README.md) is a small,
+opt-in Python adapter for buyers. It runs the free preparation check, delegates a
+single capped 1.00-USDC purchase to your authorized transport, and checks the
+signed dossier against the exact invoice, buyer context and freshness window.
+A persistent journal reuses valid identical evidence and stops instead of buying
+again after an ambiguous timeout. Equivalent decimal amount formats share one
+claim. `READY_FOR_BUYER_APPROVAL` advances only to your existing approval stage;
+the adapter never signs or submits an invoice payment.
+
+You supply the authorized MCP/x402 transport and pin the trusted receipt issuer.
+The adapter accepts invoice XML only; its tests are offline, not a paid end-to-end
+certification. Making this check mandatory is an explicit operator policy for
+your own workflow, not a requirement imposed on other agents or platforms.
+
 `us_import_readiness_guard` is limited to declared ordinary goods from Germany or Austria to the
 United States. It supplies non-binding HTS evidence and readiness guidance; it is not customs
 clearance, a binding classification or a shipping service.
