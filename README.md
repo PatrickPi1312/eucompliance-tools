@@ -1,18 +1,54 @@
 # Agent Decision & Evidence Tools over MCP and x402
 
-**40 machine-callable tools, including 10 free preparation, routing and verification tools.**
-Pay only for a successfully delivered result in USDC through x402. No account, API key,
-subscription or minimum purchase is required.
+**41 machine-callable tools, including 10 free preparation, routing and verification tools.**
+Use the existing APIs per call in USDC through x402, or request a scoped Invoice Guard Pilot
+for your accounts-payable workflow. The per-call APIs require no account, API key,
+subscription or minimum purchase. The pilot is a separate business offer, not an MCP tool.
 
 - Live catalog: [eucompliance.tools](https://eucompliance.tools/)
 - MCP endpoint: `https://mcp.eucompliance.tools/mcp`
 - Exact machine-readable catalog: [agents.json](https://api.eucompliance.tools/agents.json)
 - Agent guide: [llms.txt](https://api.eucompliance.tools/llms.txt)
 - x402 discovery: [.well-known/x402](https://api.eucompliance.tools/.well-known/x402)
+- Invoice Guard Pilot: [scope and enquiry](https://api.eucompliance.tools/invoice-guard-pilot)
 
 The service is built for agents that need a bounded decision or a cited piece of evidence,
 not an unstructured report. Paid successes return machine-readable structured content and a
 signed receipt. Invalid input, unavailable required evidence and tool errors are not settled.
+
+## Invoice Guard Pilot: evidence before approval
+
+For accounts-payable teams and integration partners who already receive structured EU
+invoices and want a reproducible check before their **existing human approval step**.
+
+**EUR 149 net, once, for a 30-day pilot — available on request.** We agree the workflow,
+accepted documents and volume in writing before an order. The scope covers **one bounded
+workflow**: a format/integration check, a synthetic example run, and a documented handover
+including open points, within the 30-day pilot window. API-call costs are separate and agreed
+in advance. This is not a subscription or an automatically activated service.
+Optional integration setup starts **from EUR 499 net**, separately scoped and quoted;
+it is not included or charged automatically.
+
+The existing building blocks can:
+
+1. Check the document format and required buyer context before a paid call.
+2. Combine EN 16931 findings, totals, VIES, EU/UN/UK name-list matches, VAT treatment and
+   comparison with the buyer's trusted payee IBAN in one signed dossier.
+3. Route `READY_FOR_BUYER_APPROVAL`, `HOLD_FOR_REVIEW` or `DO_NOT_PAY` into the buyer's
+   approval process, with reason codes, evidence sources and freshness limits.
+
+**Available now:** UBL/CII XML, or ZUGFeRD/Factur-X PDFs containing one invoice XML.
+**Not included:** ordinary PDFs, scans/OCR, accounting-ledger duplicate detection,
+independent bank-account ownership verification, legal clearance or payment execution.
+The optional Python adapter currently accepts XML only. A signature proves integrity and
+the configured issuer, not that an invoice is genuine or legally approved.
+
+[Review the pilot scope](docs/invoice-guard-pilot.md) ·
+[Request a scoped pilot](https://api.eucompliance.tools/invoice-guard-pilot) ·
+[Inspect the buyer-side integration](integrations/invoice_guard/README.md)
+
+Prefer self-service? `invoice_to_pay_dossier_eu` remains **1.00 USDC per completed dossier**.
+The euro-priced pilot does not change the public API price or authorize extra purchases.
 
 ## Add the MCP server
 
@@ -52,8 +88,10 @@ safe workflow without calling a model, making a payment or executing the selecte
 | Validate an EU e-invoice | `validate_einvoice_eu` | Official EN 16931 findings with rule codes and severity | $0.10 |
 | Run fixed-price short inference | `agentllm_micro`, `agentllm_basic`, `agentllm_plus` | OpenAI-compatible completion plus disclosed upstream usage and signed delivery receipt | $0.003 / $0.005 / $0.02 |
 
-The complete 40-tool list, exact input and output schemas, current prices and transport-specific
+The complete 41-tool list, exact input and output schemas, current prices and transport-specific
 HTTP offers are always published in [agents.json](https://api.eucompliance.tools/agents.json).
+Published prices are in USDC; inspect the live quote before authorizing a call.
+`screen_sanctions_eu` and `spot_price` each cost **0.10 USDC** per successful result.
 
 ## Read-only chain evidence
 
@@ -70,7 +108,7 @@ address.
 
 Agents can buy the smallest useful observation or a complete decision:
 
-- `spot_price` — multi-exchange median and spread: $0.001
+- `spot_price` — multi-exchange median and spread: $0.10
 - `open_social_search` — bounded Bluesky and Hacker News evidence: $0.002
 - `perp_market_data` — Hyperliquid funding, open interest, premium and volume: $0.005
 - `market_history` — archived raw or daily series: $0.008
@@ -142,6 +180,10 @@ if not decision.allowed:
 
 Verifier source: [eucompliance-verify](https://github.com/PatrickPi1312/eucompliance-verify).
 VAT conformance fixtures: [eu-vat-conformance](https://github.com/PatrickPi1312/eu-vat-conformance).
+The invoice adapter includes [offline regression tests](integrations/invoice_guard/README.md#offline-verification).
+These are implementation checks, not a live-purchase, fraud-prevention or legal certification.
+Use synthetic examples in public issues; do not post invoices, personal data, wallet secrets
+or API credentials there.
 
 ## Operator
 

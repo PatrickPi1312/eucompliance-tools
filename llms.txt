@@ -1,6 +1,6 @@
-# 40 x402/MCP Tools for Agent Decisions, Chain Data, Compliance and Inference
+# 41 x402/MCP Tools for Agent Decisions, Chain Data, Compliance and Inference
 
-> Release 1.6.0 publishes 40 MCP tools, including 10 free preparation, routing and verification
+> Catalog metadata 1.7.0 describes 41 MCP tools, including 10 free preparation, routing and verification
 > tools. Primary products: x402 Purchase Guard, Agent Chain Data, AgentLLM Micro/Basic/Plus, US Import Readiness Guard for ordinary
 > DE/AT -> US goods, and EU Invoice Payment Guard. Agent Chain Data provides five read-only EVM
 > calls from 0.002 USDC; AgentLLM provides fixed-price OpenAI-compatible inference from 0.003 USDC.
@@ -12,10 +12,29 @@
 
 Catalog page: https://eucompliance.tools/
 Catalog JSON: https://eucompliance.tools/agents.json
-The JSON field `tools` is the exact 40-tool Agent Card/MCP catalog with 10 free tools and full
+The JSON field `tools` is the exact 41-tool Agent Card/MCP catalog with 10 free tools and full
 input/output schemas. Real HTTP routes and aliases are listed separately under
 `transport_specific_http_offers`: HTTP VAT/IBAN remain $0.002 per call while their canonical MCP
 tools are free, and `funding_qr` is explicitly HTTP-only at $0.005.
+
+## Invoice Guard Pilot — separate business offer, on request
+
+- Scope and enquiry: https://api.eucompliance.tools/invoice-guard-pilot
+- EUR 149 net, one time, for a 30-day pilot; not a subscription or automatic activation.
+- One bounded workflow within the 30-day window: format/integration check, synthetic example
+  run, and documented handover including open points. Supported documents and volume are agreed
+  in writing before order; API-call costs are separate and agreed in advance.
+- Optional integration setup: from EUR 499 net, separately scoped and quoted, not included by default.
+- Uses the existing invoice evidence workflow: free input preparation, a signed dossier with
+  EN 16931/VIES/sanctions/VAT/trusted-payee evidence, then the buyer's existing approval step.
+- Service inputs: UBL/CII XML or ZUGFeRD/Factur-X PDF with one embedded invoice XML.
+  The optional buyer-side Python adapter accepts XML only.
+- Not supported: ordinary PDFs, scanned/image-only PDFs or OCR. Not established by a result:
+  duplicate-ledger status, bank-account ownership, actual delivery or legal approval.
+- No invoice payment is released. No legal, fraud-prevention or revenue guarantee is offered.
+- Self-service `invoice_to_pay_dossier_eu` stays 1.00 USDC per completed dossier; the pilot
+  does not change API pricing, include unagreed call costs or grant spending authority.
+- This is a scoped business engagement, not a new MCP tool or an instruction to book a service.
 
 ## AgentLLM — OpenAI-Compatible x402 Inference
 
@@ -97,7 +116,7 @@ No endpoint signs, approves, transfers or broadcasts a transaction.
 2. When an agent needs a market action instead of separate observations:
    call MCP `market_decision_pack` for `ENTER_RISK / WAIT / REDUCE_RISK`, confidence, reasons,
    risk flags, invalidation conditions and a 15-minute expiry. Price: 0.05 USDC. For a narrower
-   task use `spot_price` (0.001), `perp_market_data` (0.005), `market_history` (0.008),
+   task use `spot_price` (0.10), `perp_market_data` (0.005), `market_history` (0.008),
    `market_data` (0.01) or `coin_positioning_brief` (0.01); every result discloses sources and
    freshness.
 3. Before confirming another x402 purchase: first run the FREE
@@ -264,7 +283,7 @@ Use the full catalog below only when one of these eight purchase paths does not 
   Sanctions screening (AML/KYC) against three official lists - EU, UN and UK - the EU consolidated financial sanctions
   list (European Commission FSF), the UN Security Council consolidated list and the UK list (HM Treasury OFSI): over 12,000 entities, 50,000 name variants, re-indexed daily.
   Returns matches with score, sanction programme, EU reference, regulation, countries, birth
-  dates, alias names, publication URL, and the list generation date. Price: $0.01 per check.
+  dates, alias names, publication URL, and the list generation date. Price: 0.10 USDC per check.
 
 - `GET https://api.eucompliance.tools/x402/vat-rules?supplier={ISO2}&customer={ISO2}&b2b=true&type=service`
   EU VAT decision engine for invoicing and e-invoicing: place of supply, reverse charge,
@@ -306,7 +325,7 @@ An unpaid call returns HTTP 402 with a spec-compliant `payment-required` header.
   this service. Price: $ .005.
 - `GET https://api.eucompliance.tools/x402/price?symbol=BTC` - Attempts Binance, Coinbase and
   Kraken public tickers and returns the median of at least two live replies; every delivered
-  quote and the spread are disclosed. Price: $ .001.
+  quote and the spread are disclosed. Price: 0.10 USDC.
 - `GET https://api.eucompliance.tools/x402/social?q={term}&limit=10` - Search Bluesky and
   Hacker News for every query; for a single tag, additionally search Mastodon's anonymous public
   tag timeline. Mastodon is not applicable to phrase search. Failure of any source promised for
@@ -366,10 +385,10 @@ Agent infrastructure: `rpc_read_batch` ($ .01, 28 EVM mainnets, up to 20 read ca
 `wallet_balance` ($ .003), `gas_estimate` ($ .003), `contract_info` ($ .003),
 `tx_status` ($ .002) and `token_status` ($ .002). `rpc_read_batch` accepts one default chain or
 an optional chain per batch entry; all RPC access is allowlisted and read-only.
-Market and research tools: `spot_price` ($ .001), `open_social_search` ($ .002),
+Market and research tools: `spot_price` (0.10 USDC), `open_social_search` ($ .002),
 `perp_market_data` ($ .005), `coin_positioning_brief` ($ .01), `market_data` ($ .01),
 `market_history` ($ .008), `soft_commodity_stress` ($ .04) and `market_decision_pack` ($ .05).
-OTHER PAID tools include `screen_sanctions_eu` ($ .01), `eu_vat_rules` ($ .005),
+OTHER PAID tools include `screen_sanctions_eu` (0.10 USDC), `eu_vat_rules` ($ .005),
 `must_verify_before_pay` ($ .02), `agent_spend_statement` ($ .10), company lookup and utilities.
 Every paid success is returned in MCP `structuredContent` and JSON text with a signed receipt.
 Tool errors are returned as MCP errors and are not settled.

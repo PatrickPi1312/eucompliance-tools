@@ -123,13 +123,51 @@ duplicate-ledger checks and independent bank-account ownership remain the buyer'
 responsibility. A name-list match may require identity review. No agent should
 reinterpret HOLD or DO_NOT_PAY as approval.
 
+## Bounded batch review
+
+`batch.evaluate_batch` adds a buyer-owned review queue around the same guard.
+It accepts up to 200 named XML cases (20 MB total, 1 MB per document), validates
+the entire batch before calling the guard, and returns a JSON-compatible report
+in memory. This is a technical limit, **not a sold quota or subscription**.
+
+```python
+from invoice_guard.batch import evaluate_batch
+
+# The guard and its authorized transport come from the operator's existing setup.
+report = evaluate_batch(guard, [
+    {"case_id": "invoice-001", "request": your_xml_request},
+], max_total_usdc_atomic=0)  # Default: no potentially paid evaluation allowed.
+```
+
+The operator must deliberately set a sufficient batch ceiling before execution:
+one unique, non-conflicting case reserves 1,000,000 atomic USDC (1 USDC), even if
+the guard might reuse a cached dossier. An insufficient ceiling rejects the whole
+batch before any call. The ceiling does not grant spending authority; the injected
+transport must enforce its own per-call and cross-batch budget. No wallet, HTTP
+client or signer is added. Actual spend is reported as unknown, not inferred from
+the number of evaluations. The batch itself is not a signed receipt.
+
+Identical document/context fingerprints share at most one guard evaluation, and
+all repeated cases are held for review. Conflicting inputs sharing an unambiguous
+declared UBL/CII supplier VAT ID and invoice number are held before purchase.
+Missing identifiers are explicitly not assessable. These are hints within the
+submitted batch, not a check of your accounting ledger or proof an invoice is
+unpaid. Unknown/failed outcomes never authorize payment; `ready_to_pay` is always
+false. Selected evidence is returned without raw XML or full IBAN; retain the
+original validated receipt securely for verification at handoff.
+
+For the business integration offer, see the
+[Invoice Guard Pilot](https://api.eucompliance.tools/invoice-guard-pilot).
+It is separate from the per-call API and must be scoped before ordering.
+
 ## Offline verification
 
 From the repository root:
 
 ```sh
 python3 -m unittest integrations.invoice_guard.test_adapter \
-  integrations.invoice_guard.test_crypto_contract -v
+  integrations.invoice_guard.test_crypto_contract \
+  integrations.invoice_guard.test_batch -v
 ```
 
 The core tests use synthetic fixtures and an explicitly test-only HMAC verifier to
@@ -146,3 +184,8 @@ XML fact parser, using the bundled official UBL example. They do not load the
 server application, real receipt key or paid handler. All 29 tests passed locally
 with the pinned crypto dependency. The tests perform no network/backend calls or
 payments; this is not a live x402 purchase or compliance certification.
+
+The batch suite adds 32 offline cases for aggregate budget rejection, XML bounds,
+repeated inputs, declared-key conflicts, malformed or tampered outcomes and
+receipt reuse. It uses an in-memory test journal and fake transport, not a
+production journal or actual supplier checks.

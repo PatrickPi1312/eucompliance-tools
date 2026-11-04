@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.PatrickPi1312/eu-compliance",
-  "title": "Agent Decision & Evidence Tools (MCP + x402)",
-  "description": "40 MCP tools: multi-chain RPC, market and transaction decisions, AI, EU compliance and US imports",
-  "version": "1.6.0",
+  "title": "EUCompliance Tools - Invoice Guard & Agent Evidence",
+  "description": "41 MCP tools for EU invoice evidence, supplier checks, market data and read-only chain queries",
+  "version": "1.7.0",
   "websiteUrl": "https://eucompliance.tools",
   "repository": {
     "url": "https://github.com/PatrickPi1312/eucompliance-tools",
