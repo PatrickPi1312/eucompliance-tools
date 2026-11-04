@@ -1,83 +1,85 @@
 #!/usr/bin/env python3
-"""Runnable example: an agent pays per call in USDC on Base and uses every endpoint.
+"""Read FREE quickstart metadata only; the historical filename is retained.
 
-Setup:
-    pip install "x402[evm]" requests
-    export X402_PRIVATE_KEY=0x...        # wallet holding USDC on Base (no ETH needed)
-
-Run:
-    python pay_and_call.py
+Run: python3 examples/pay_and_call.py (Python 3.10+, no dependencies).
+No wallet, key, signer, or paid endpoint is used. Automated purchases require an
+existing buyer-authorized x402 transport with explicit spend limits and trust
+policy. This example does not configure one or execute returned instructions.
 """
 from __future__ import annotations
 
 import json
-import os
 import sys
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlsplit
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
-import requests
-from eth_account import Account
-from x402.client import x402ClientSync
-from x402.http.clients.requests import wrapRequestsWithPayment
-from x402.mechanisms.evm.exact.register import register_exact_evm_client
-from x402.mechanisms.evm.signers import EthAccountSigner
-
-BASE = os.environ.get("EUCOMPLIANCE_BASE", "https://api.eucompliance.tools")
+QUICKSTART_URL = "https://api.eucompliance.tools/agent-quickstart.json"
+TIMEOUT_SECONDS = 10
+MAX_RESPONSE_BYTES = 256 * 1024
 
 
-def build_session():
-    key = os.environ.get("X402_PRIVATE_KEY")
-    if not key:
-        sys.exit("X402_PRIVATE_KEY is not set (wallet with USDC on Base)")
-    client = x402ClientSync()
-    register_exact_evm_client(client, EthAccountSigner(Account.from_key(key)),
-                              networks="eip155:8453")
-    return wrapRequestsWithPayment(requests.Session(), client)
+class QuickstartError(Exception):
+    """Discovery stopped without executing a tool or making a payment."""
 
 
-def show(title: str, response: requests.Response) -> None:
-    print(f"\n=== {title}  [HTTP {response.status_code}]")
-    if response.status_code != 200:
-        print(response.text[:300])
-        return
-    print(json.dumps(response.json(), indent=2, ensure_ascii=False)[:900])
+class NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise QuickstartError("Redirect refused; no redirected request was sent.")
 
 
-def main() -> None:
-    s = build_session()
+def _reject_json_constant(value):
+    raise ValueError("Non-finite JSON value")
 
-    # 1) One-call due diligence before onboarding a supplier ($0.02)
-    show("Counterparty check", s.get(f"{BASE}/x402/counterparty",
-                                     params={"name": "Acme GmbH", "vat": "ATU16170006"},
-                                     timeout=180))
 
-    # 2) Sanctions screening only ($0.01)
-    show("Sanctions screening", s.get(f"{BASE}/x402/sanctions",
-                                      params={"name": "Acme GmbH", "country": "AT"},
-                                      timeout=180))
+def fetch_quickstart() -> dict:
+    """One unauthenticated GET to the fixed free HTTPS URL; no retries."""
+    url = QUICKSTART_URL
+    if (urlsplit(url).scheme != "https"
+            or url != "https://api.eucompliance.tools/agent-quickstart.json"):
+        raise QuickstartError("Only the fixed HTTPS quickstart URL is allowed.")
+    request = Request(url, headers={"Accept": "application/json"}, method="GET")
+    # Do not load proxy credentials or URLs from the environment.
+    opener = build_opener(ProxyHandler({}), NoRedirect())
+    try:
+        with opener.open(request, timeout=TIMEOUT_SECONDS) as response:
+            if response.status != 200:
+                raise QuickstartError(f"HTTP {response.status}; discovery stopped.")
+            if response.geturl() != url:
+                raise QuickstartError("Response URL changed; discovery stopped.")
+            media_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+            if media_type != "application/json":
+                raise QuickstartError("Expected application/json; discovery stopped.")
+            raw = response.read(MAX_RESPONSE_BYTES + 1)
+            if len(raw) > MAX_RESPONSE_BYTES:
+                raise QuickstartError("Quickstart response is too large.")
+    except HTTPError as exc:
+        exc.close()
+        raise QuickstartError(f"HTTP {exc.code}; no retry or payment was attempted.") from None
+    except (URLError, OSError):
+        raise QuickstartError("HTTPS request failed or timed out; no retry was attempted.") from None
+    try:
+        data = json.loads(raw.decode("utf-8"), parse_constant=_reject_json_constant)
+        json.dumps(data, allow_nan=False)
+    except (ValueError, UnicodeError, RecursionError):
+        raise QuickstartError("Invalid UTF-8 JSON; discovery stopped.") from None
+    if not isinstance(data, dict) or not data:
+        raise QuickstartError("Expected a non-empty JSON object; discovery stopped.")
+    return data
 
-    # 3) How to invoice a cross-border service ($0.003)
-    show("VAT rules", s.get(f"{BASE}/x402/vat-rules",
-                            params={"supplier": "AT", "customer": "DE",
-                                    "b2b": "true", "type": "service"},
-                            timeout=180))
 
-    # 4) VAT ID against the live VIES register ($0.002)
-    show("VAT ID validation", s.get(f"{BASE}/x402/vat/ATU16170006", timeout=180))
-
-    # 5) IBAN structure and checksum ($0.002)
-    show("IBAN validation", s.get(f"{BASE}/x402/iban/AT151420020014409310", timeout=180))
-
-    # 6) Receipt or invoice to structured JSON ($0.02)
-    path = os.environ.get("RECEIPT_FILE")
-    if path and os.path.exists(path):
-        with open(path, "rb") as fh:
-            show("Receipt extraction",
-                 s.post(f"{BASE}/x402/extract",
-                        files={"file": (os.path.basename(path), fh.read(), "application/pdf")},
-                        timeout=300))
-    else:
-        print("\n=== Receipt extraction skipped (set RECEIPT_FILE=/path/to/receipt.pdf)")
+def main() -> int:
+    try:
+        metadata = fetch_quickstart()
+    except QuickstartError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(json.dumps(metadata, indent=2, ensure_ascii=True, allow_nan=False))
+    print("Free discovery only. No wallet access, signing, or paid tool calls. "
+          "Automatic buying requires your existing buyer-authorized, capped x402 transport; "
+          "this example does not configure it.", file=sys.stderr)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
