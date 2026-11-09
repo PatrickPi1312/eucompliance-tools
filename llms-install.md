@@ -75,6 +75,11 @@ semantics and must not interpret a transport-level HTTP 200 as a paid success.
 
 ## Invoice workflow
 
+Executable free input example (Python 3.10+, standard library only):
+https://github.com/PatrickPi1312/eucompliance-tools/blob/main/examples/README.md
+It sends fixed fictional data only, demonstrates eligible and held preparation,
+and cannot buy a dossier. Preparation is not invoice approval or full validation.
+
 1. Supply UBL/CII XML or a ZUGFeRD/Factur-X PDF with one embedded invoice XML,
    plus the required buyer-held context. Ordinary PDFs and scans are unsupported.
 2. Run free `prepare_invoice_to_pay_eu`; inspect its result and quoted next step.

@@ -50,6 +50,29 @@ the configured issuer, not that an invoice is genuine or legally approved.
 Prefer self-service? `invoice_to_pay_dossier_eu` remains **1.00 USDC per completed dossier**.
 The euro-priced pilot does not change the public API price or authorize extra purchases.
 
+## Try invoice preparation without a wallet
+
+The [executable free example](examples/invoice_precheck.py) sends one fixed, fictional
+UBL input to our free preparation endpoint. It uses Python's standard library, needs no
+account or API key, and cannot buy a dossier or execute a payment.
+
+```sh
+git clone https://github.com/PatrickPi1312/eucompliance-tools.git
+cd eucompliance-tools
+python3 examples/invoice_precheck.py
+python3 examples/invoice_precheck.py --missing-trusted-payee
+```
+
+The first invocation demonstrates an input eligible for the next, separately authorized
+paid step. The second holds the same fictional input with
+`TRUSTED_PAYEE_IBAN_REQUIRED`. **Neither approves an invoice.** The sample is deliberately
+not a full EN 16931-conformant invoice and uses a fictional VAT ID; preparation does not
+run VIES, sanctions or the full invoice validation. Both outcomes report `paid_calls: 0`.
+Requests are subject to the existing free quota; errors stop without retries.
+
+[Expected results, safety limits and offline tests](examples/README.md) ·
+[Buyer-controlled paid integration](integrations/invoice_guard/README.md)
+
 ## Add the MCP server
 
 Claude Code:

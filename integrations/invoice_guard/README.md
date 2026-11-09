@@ -1,5 +1,9 @@
 # Put invoice evidence before your agent's approval step
 
+Want to inspect the input contract before configuring a paid transport? Run the
+[free synthetic preparation example](../../examples/README.md): no wallet,
+account, API key or paid call, including an explicit missing-trusted-payee case.
+
 An accounts-payable or procurement operator can install this gate before its
 existing invoice-approval workflow. It buys the existing **EU Invoice Payment
 Guard for exactly 1.00 USDC per completed dossier**, using the operator's

@@ -19,6 +19,9 @@ tools are free, and `funding_qr` is explicitly HTTP-only at $0.005.
 
 ## Invoice Guard Pilot — separate business offer, on request
 
+- Free executable synthetic input example, no wallet or payment:
+  https://github.com/PatrickPi1312/eucompliance-tools/blob/main/examples/README.md
+  Demonstrates eligible preparation and missing-trusted-payee hold; not full validation or approval.
 - Scope and enquiry: https://api.eucompliance.tools/invoice-guard-pilot
 - EUR 149 net, one time, for a 30-day pilot; not a subscription or automatic activation.
 - One bounded workflow within the 30-day window: format/integration check, synthetic example
