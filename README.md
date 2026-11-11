@@ -7,6 +7,7 @@ subscription or minimum purchase. The pilot is a separate business offer, not an
 
 - Live catalog: [eucompliance.tools](https://eucompliance.tools/)
 - MCP endpoint: `https://mcp.eucompliance.tools/mcp`
+- Remote client configuration: [mcp.json](https://api.eucompliance.tools/mcp.json)
 - Exact machine-readable catalog: [agents.json](https://api.eucompliance.tools/agents.json)
 - Agent guide: [llms.txt](https://api.eucompliance.tools/llms.txt)
 - x402 discovery: [.well-known/x402](https://api.eucompliance.tools/.well-known/x402)

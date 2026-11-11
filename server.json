@@ -3,8 +3,15 @@
   "name": "io.github.PatrickPi1312/eu-compliance",
   "title": "EUCompliance Tools - Invoice Guard & Agent Evidence",
   "description": "41 MCP tools for EU invoice evidence, supplier checks, market data and read-only chain queries",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "websiteUrl": "https://eucompliance.tools",
+  "icons": [
+    {
+      "src": "https://eucompliance.tools/eucompliance-toolkit.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
   "repository": {
     "url": "https://github.com/PatrickPi1312/eucompliance-tools",
     "source": "github"
